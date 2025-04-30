@@ -10,13 +10,13 @@ Use this template to review notebooks using the UX guidelines.
   - ❌ Missing
   - ➖ Not applicable
 - Add a short note in the *Suggestion* column for action items.
-- Submit it as a comment in a PR.
+- Submit it as a comment in a PR
 
 ## UX Structure Review Summary
 
 ✅ = (Meets expectations)  
 🔹 = (Could be improved)  
-❌ = (Missing)
+❌ = (Missing)  
 ➖ = Not applicable
 
 | Guideline | Status | Suggestion |
