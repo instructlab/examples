@@ -32,6 +32,5 @@ Use this template to review notebooks using the UX guidelines.
 | End Wrap-Up & Handoff | ✅🔹❌➖ | Notebook ends with a summary and/or next step guidance |
 
 ---
-
 ### Reviewer Notes (Optional)
 Leave additional comments or clarifications here.
