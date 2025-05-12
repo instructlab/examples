@@ -1,0 +1,37 @@
+# This workflow is designed to test the notebooks in "notebooks/instructlab-knowledge"
+# This job can be coppied for end to end tests of notebooks in other working directories
+
+name: Instructlab Knowledge End to End Tests
+
+# trigger on open pull requests only
+on:
+    pull_request:
+        types: [opened, reopened]
+
+env:
+    # dependencies that need to be installed using pip for testing to work
+    TESTING_PIP_DEPENDENCIES: "papermill"
+
+jobs:
+    end_to_end:
+        strategy:
+            matrix:
+                # add notebooks within the "notebooks/instructlab-knowledge" repo to end to end test here
+                notebooks_to_test: ["instructlab-knowledge.ipynb"]
+        runs-on: ubuntu-latest
+        env:
+            # customize the workflow here
+            WORKSPACE_NAME: "default"
+            SOURCE_DOCUMENT: ""
+        steps:
+            - uses: actions/checkout@v3
+            - name: Set up Python
+              uses: actions/setup-python@v3
+              with:
+                python-version: '3.11'
+                cache: pip
+            - name: Install Testing Tools
+              run: pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
+            - name: Run End To End Tests
+              working-directory: ./notebooks/instructlab-knowledge
+              run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp -p WORKSPACE_NAME "$WORKSPACE_NAME" -p "$SOURCE_DOCUMENT"
