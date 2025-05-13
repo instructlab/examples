@@ -10,7 +10,7 @@ on:
 
 env:
     # dependencies that need to be installed using pip for testing to work
-    TESTING_PIP_DEPENDENCIES: "papermill"
+    TESTING_PIP_DEPENDENCIES: "papermill nbformat"
 
 jobs:
     end_to_end:
@@ -32,6 +32,11 @@ jobs:
                 cache: pip
             - name: Install Testing Tools
               run: pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
+            - name: Validate The Notebook
+              working-directory: ./notebooks/instructlab-knowledge
+              run: |
+                git clone https://github.com/instructlab/instructlab.git
+                python3 instructlab/scripts/validate_notebook.py ${{ matrix.notebooks_to_test }}
             - name: Run End To End Tests
               working-directory: ./notebooks/instructlab-knowledge
               run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp -p WORKSPACE_NAME "$WORKSPACE_NAME" -p "$SOURCE_DOCUMENT"
