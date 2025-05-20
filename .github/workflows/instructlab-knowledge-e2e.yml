@@ -33,7 +33,7 @@ jobs:
                 cache: pip
             - name: Install Testing Tools
               run: |
-                  pip install --upgrade-pip ${{ env.TESTING_PIP_DEPENDENCIES }}
+                  pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
                   ipython kernel install --name "python3" --user
             - name: Validate The Notebook
               working-directory: ./notebooks/instructlab-knowledge
