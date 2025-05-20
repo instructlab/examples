@@ -43,7 +43,7 @@ jobs:
               working-directory: ./tests/inference-mock
               run: |
                 pip install -r requirements.txt
-                nohup python -m app.py &
+                nohup python app.py &
                 sleep 1
                 echo "Inference mock server started on port 11434"
             - name: Run End To End Tests
