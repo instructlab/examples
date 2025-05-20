@@ -44,7 +44,7 @@ jobs:
               working-directory: ./tests/inference-mock
               run: |
                 pip install -r requirements.txt
-                python -m flask run &
+                nohup python -m app.py &
                 sleep 1
                 echo "Inference mock server started on port 11434"
             - name: Run End To End Tests
@@ -54,5 +54,5 @@ jobs:
             - name: Terminate Inference Mock Server
               if: always()
               run: |
-                pkill -f "python -m flask"
+                pkill -f "python -m app.py"
                 echo "Mock server terminated"
