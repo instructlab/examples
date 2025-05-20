@@ -11,7 +11,7 @@ on:
 
 env:
     # dependencies that need to be installed using pip for testing to work
-    TESTING_PIP_DEPENDENCIES: "papermill nbformat"
+    TESTING_PIP_DEPENDENCIES: "papermill nbformat ipykernel"
 
 jobs:
     end_to_end:
@@ -32,7 +32,9 @@ jobs:
                 python-version: '3.11'
                 cache: pip
             - name: Install Testing Tools
-              run: pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
+              run: |
+                  pip install --upgrade-pip ${{ env.TESTING_PIP_DEPENDENCIES }}
+                  ipython kernel install --name "python3" --user
             - name: Validate The Notebook
               working-directory: ./notebooks/instructlab-knowledge
               run: |
