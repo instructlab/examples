@@ -44,7 +44,7 @@ jobs:
               working-directory: ./tests/inference-mock
               run: |
                 pip install -r requirements.txt
-                python python -m flask run &
+                python -m flask run &
                 sleep 1
                 echo "Inference mock server started on port 11434"
             - name: Run End To End Tests
