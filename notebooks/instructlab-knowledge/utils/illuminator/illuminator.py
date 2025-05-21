@@ -1,7 +1,7 @@
 # main.py
 import argparse
-from utils import get_pdf_files, save_results, generate_summary
-from analysis import analyze_pdf_with_docling
+from utils import get_supported_files, save_results, generate_summary
+from analysis import convert_pdf_with_docling, analyze_docling_tables
 from log_utils import logger
 
 def parse_args() -> argparse.Namespace:
@@ -27,25 +27,26 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-
 def main() -> None:
     """
     Main execution flow:
     - Parses arguments
-    - Loads and analyzes PDFs
+    - Loads and analyzes PDFs or JSONs
     - Generates and saves results
     """
     args = parse_args()
-    pdfs = get_pdf_files(args.file)
-    if not pdfs:
-        logger.error("❌ No PDFs found to process.")
+    files = get_supported_files(args.file)
+    if not files:
+        logger.error("❌ No input files found to process.")
         return
 
     all_results = {}
-    for path in pdfs:
+    for path in files:
         logger.info(f"\n🔍 Converting and analyzing: {path}\n")
         try:
-            result = analyze_pdf_with_docling(path)
+            # Use Docling to convert (PDF path)
+            doc = convert_pdf_with_docling(path)
+            result = analyze_docling_tables(doc)
             all_results[path] = result
         except Exception as e:
             logger.error(f"❌ Failed to process {path}: {e}")

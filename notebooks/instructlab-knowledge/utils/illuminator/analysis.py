@@ -1,5 +1,6 @@
 from docling.document_converter import DocumentConverter
-from typing import List, Tuple, Dict, Any, Union
+from docling.datamodel.document import DoclingDocument
+from typing import List, Tuple, Dict, Any, Union, Set
 from log_utils import logger
 import os
 
@@ -40,37 +41,37 @@ def summarize_tables(doc) -> Tuple[int, List[int]]:
 
     return num_tables, pages
 
-
-def analyze_pdf_with_docling(file_path) -> Dict[str, Union[int, List[Any], set]]:
+def convert_pdf_with_docling(file_path: str) -> DoclingDocument:
     """
-    Analyzes a PDF for merged table cells using the Docling converter,
-    and saves a Markdown version of the converted document.
+    Converts a PDF using Docling and saves a Markdown version of the document.
 
     Args:
         file_path: Path to the input PDF file.
 
     Returns:
-        A dictionary containing:
-            - Total number of tables.
-            - Set of pages with merged cells.
-            - List of merged cell details (page, position, spans, text).
-            - Total unique pages with tables.
+        The converted Docling Document object.
     """
     converter = DocumentConverter()
     result = converter.convert(file_path)
     doc = result.document
 
-    # ✅ Save Markdown output
+    # Save Markdown output
     markdown_text = doc.export_to_markdown()
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     md_output_path = f"{base_name}.md"
-    with open(md_output_path, "w") as f:
+    with open(md_output_path, "w", encoding="utf-8") as f:
         f.write(markdown_text)
 
     logger.info(f"📝 Markdown saved to {md_output_path}")
+    return doc
 
-    # ⬇️ Proceed with table analysis
-    table_count, table_pages_list = summarize_tables(doc)
+def analyze_docling_tables(doc_input: DoclingDocument) -> Dict[str, Union[int, List[dict], List[int], str]]:
+    """
+    Analyzes a Docling document (object or path to PDF/JSON file) for merged table cells.
+    """
+    doc_input
+
+    table_count, table_pages_list = summarize_tables(doc_input)
     total_pages = len(set(table_pages_list)) or "Unknown"
 
     issues = {
@@ -80,7 +81,7 @@ def analyze_pdf_with_docling(file_path) -> Dict[str, Union[int, List[Any], set]]
         "page_count": total_pages
     }
 
-    for i, table_item in enumerate(doc.tables):
+    for i, table_item in enumerate(doc_input.tables):
         try:
             page_number = table_pages_list[i]
         except IndexError:
