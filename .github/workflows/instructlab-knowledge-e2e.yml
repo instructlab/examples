@@ -51,8 +51,3 @@ jobs:
               working-directory: ./notebooks/instructlab-knowledge
               # NOTE: for this to work, cells with parameters need to be tagged as parameters in the target notebooks
               run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp -p API_URL $API_URL -p MODEL_ID $MODEL_ID
-            - name: Terminate Inference Mock Server
-              if: always()
-              run: |
-                pkill -f "python -m app.py"
-                echo "Mock server terminated"
