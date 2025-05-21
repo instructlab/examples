@@ -8,11 +8,10 @@ on:
     pull_request:
         branches:
           - "main"
-        types: [opened, reopened]
 
 env:
     # dependencies that need to be installed using pip for testing to work
-    TESTING_PIP_DEPENDENCIES: "papermill nbformat"
+    TESTING_PIP_DEPENDENCIES: "papermill nbformat ipykernel"
 
 jobs:
     end_to_end:
@@ -23,18 +22,19 @@ jobs:
         runs-on: ubuntu-latest
         env:
             # customize the workflow here
-            API_KEY: ""
             API_URL: "http://127.0.0.1:11434/v1"
             MODEL_ID: "Mixtral-8x7B" # must be open-AI compatible when using inference mock
         steps:
             - uses: actions/checkout@v3
             - name: Set up Python
-              uses: actions/setup-python@v3
+              uses: actions/setup-python@v5
               with:
                 python-version: '3.11'
                 cache: pip
             - name: Install Testing Tools
-              run: pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
+              run: |
+                  pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
+                  ipython kernel install --name "python3" --user
             - name: Validate The Notebook
               working-directory: ./notebooks/instructlab-knowledge
               run: |
@@ -44,15 +44,10 @@ jobs:
               working-directory: ./tests/inference-mock
               run: |
                 pip install -r requirements.txt
-                python python -m flask run &
+                nohup python app.py &
                 sleep 1
                 echo "Inference mock server started on port 11434"
             - name: Run End To End Tests
               working-directory: ./notebooks/instructlab-knowledge
               # NOTE: for this to work, cells with parameters need to be tagged as parameters in the target notebooks
-              run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp -p API_KEY $API_KEY -p API_URL $API_URL -p MODEL_ID $MODEL_ID
-            - name: Terminate Inference Mock Server
-              if: always()
-              run: |
-                pkill -f "python -m flask"
-                echo "Mock server terminated"
+              run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp -p API_URL $API_URL -p MODEL_ID $MODEL_ID

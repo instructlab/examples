@@ -58,7 +58,6 @@ def mock_generate():
     response = jsonify(completion_response(completion, request.json['model']))
     app.logger.debug(f"response: {response}")
     return response
-    
 
 if __name__ == '__main__':
     app.run(debug=True, port=port_number)
