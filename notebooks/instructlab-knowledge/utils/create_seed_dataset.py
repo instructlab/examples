@@ -1,4 +1,4 @@
-# Standard
+i# Standard
 from pathlib import Path
 import json
 import re
@@ -9,7 +9,7 @@ from datasets import Dataset, concatenate_datasets
 from transformers import AutoTokenizer
 import yaml
 
-def get_seed_dataset(path: str) -> Dataset:
+def get_seed_dataset(chunks_path: Path, seed_examples_path: Path) -> Dataset:
     """
     Creates a seed dataset from a path
     Args:
@@ -19,12 +19,27 @@ def get_seed_dataset(path: str) -> Dataset:
                       of seed data for the knowledge generation pipeline in
                       SDG.
     """
-    valid_path = is_dir_valid(path)
-    ds = create_dataset_from_dir(valid_path)
+    if not chunks_path.is_dir():
+        raise ValueError(f"Path to chunks {chunks_path} must be a directory")
+    if not seed_examples_path.is_dir():
+        raise ValueError(f"Path to seed examples {seed_examples_path} must be a directory")
+
+    files = list(seed_examples_path.iterdir())
+    has_qna = any(f.name == 'qna.yaml' for f in files)
+    files = list(chunks_path.iterdir())
+    has_chunks_jsonl = any(f.name == 'chunks.jsonl' for f in files)
+
+    if not has_qna:
+        raise ValueError(f"Seed examples dir {seed_examples_path} does not contain a qna.yaml")
+
+    if not has_chunks_jsonl:
+        raise ValueError(f"Chunks dir {chunks_path} does not contain a chunks.jsonl")
+
+    ds = create_dataset_from_dir(chunks_path, seed_examples_path)
 
     return ds
 
-def is_dir_valid(path: str) -> Path:
+def is_dir_valid(path: str) -> None:
     """
     Returns whether or not a directory contains a qna.yaml and one or more .txt chunks
     Args:
@@ -43,40 +58,32 @@ def is_dir_valid(path: str) -> Path:
     if not has_qna or not has_txt:
         raise ValueError("Directory does not contain a qna.yaml and chunks")
 
-    return base_path
-
-def read_chunks(path: Path) -> Dict[str, str]:
+def read_chunks(chunks_path: Path) -> Dict[str, str]:
     """
-    Returns a dictionary with all of the .txt chunks in a directory
+    Returns a dictionary with all of the chunks in a chunks.jsonl
     The chunks may originate from one or more different files
     Args:
-        path (Path): Path to directory of chunks
+        path (Path): Path to directory of chunks in a file called chunks.jsonl
     Returns:
         chunks_dict (Dict[str,str]: Dictionary with key of the original file name
                                     and a list of chunks as the value
     """
-    chunk_files = path.glob('*.txt')
-
+    chunks_jsonl_path = chunks_path / "chunks.jsonl"
     chunks_dict = {}
-    for file in chunk_files:
-        chunks = []
-        match = re.match(r"^(.*?)[-_]\d+\.txt$", file.name)
-        if match:
-            orig_filename = match.group(1)
 
-            with file.open('r', encoding='utf-8') as f:
-                chunk = f.read()
+    with open(chunks_jsonl_path, 'r') as file:
+        for line in file:
+            entry = yaml.safe_load(line)
+            orig_filename = entry.get("file")
 
             if orig_filename not in chunks_dict:
                 chunks_dict[orig_filename] = []
-            chunks_dict[orig_filename].append(chunk)
 
-        else:
-            print(f"Ignoring .txt file {file}, file name is not the right format")
+            chunks_dict[orig_filename].append(entry.get("chunk"))
 
     return chunks_dict
 
-def create_dataset_from_dir(path: Path) -> Dataset:
+def create_dataset_from_dir(chunks_path: Path, seed_examples_path: Path) -> Dataset:
     """
     Process a directory with chunks and a qna.yaml return a dataset.
     Args:
@@ -85,7 +92,7 @@ def create_dataset_from_dir(path: Path) -> Dataset:
         Dataset: Dataset object.
     """
 
-    qna_yaml_path = path / "qna.yaml"
+    qna_yaml_path = seed_examples_path / "qna.yaml"
 
     with open(qna_yaml_path, 'r') as f:
       qna_yaml = yaml.safe_load(f)
@@ -94,7 +101,7 @@ def create_dataset_from_dir(path: Path) -> Dataset:
     if not all(key in qna_yaml for key in ['document_outline', 'domain', 'seed_examples']):
         raise ValueError("qna.yaml file is missing document_outline, domain, or seed_examples fields")
 
-    chunks_dict = read_chunks(path)
+    chunks_dict = read_chunks(chunks_path)
     
     datasets = []
     for filename in chunks_dict.keys():
