@@ -35,11 +35,16 @@ jobs:
               run: |
                   pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
                   ipython kernel install --name "python3" --user
-            - name: Validate The Notebook
-              working-directory: ./notebooks/instructlab-knowledge
-              run: |
-                git clone https://github.com/instructlab/instructlab.git
-                python3 instructlab/scripts/validate_notebook.py ${{ matrix.notebooks_to_test }}
+            - name: Checkout "validate-notebooks" in-house CI action
+              uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+              with:
+                repository: instructlab/ci-actions
+                path: ci-actions
+                sparse-checkout: actions/validate-notebooks
+            - name: Validate Jupyter Notebooks
+              uses: ./ci-actions/actions/validate-notebooks
+              with:
+                path: "./notebooks/instructlab-knowledge/${{ matrix.notebooks_to_test }}"
             - name: Start Inference Mock Server
               working-directory: ./tests/inference-mock
               run: |
