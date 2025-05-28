@@ -40,6 +40,7 @@ jobs:
               with:
                 repository: instructlab/ci-actions
                 path: ci-actions
+                ref: v0.2.0
                 sparse-checkout: actions/validate-notebooks
             - name: Validate Jupyter Notebooks
               uses: ./ci-actions/actions/validate-notebooks
