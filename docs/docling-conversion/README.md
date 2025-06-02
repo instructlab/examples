@@ -21,8 +21,6 @@ $ pip install "docling-serve[ui]"
 $ docling-serve run --enable-ui
 ```
 
-![Docling Serve UI](docling-serve-ui.png)
-
 ## Document parsing
 
 ### Mostly default settings
