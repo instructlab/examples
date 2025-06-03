@@ -1,0 +1,3 @@
+.DS_Store
+notebooks/instructlab-knowledge/workspaces/*
+!notebooks/instructlab-knowledge/workspaces/.gitkeep
