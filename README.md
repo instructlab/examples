@@ -2,35 +2,33 @@
 
 The `examples` repo is a place where the maintainers of the project can collect notebooks for the benefit of the community.
 
-This repository contains [Jupyter notebooks](https://jupyter.org/) and other examples that illustrate parts of or an entire model customization pipeline.
+This repository contains [Jupyter notebooks](https://jupyter.org/) and scripts that illustrate model customization pipelines or stages of an model customization pipeline.
 
 ## Repository Structure
 
-Notebooks either live in the `combined-stages` or `use-cases` directories.
+Examples either live in the `quick-starts` or `deep-dives` directories.
 
 ```bash
 examples
 |
-|- notebooks
-    |
-    |- combined-stages
-    |   |- training-with-eval
-    |       |- requirements.txt
-    |       |- training-with-eval.ipynb
-    |- use-cases
-    |   |- policy-documents
-    |   |   |- requirements.txt
-    |   |   |- legislative-act.ipynb
-    |   |- instruction-manuals
-    |   |   |- requirements.txt
-    |   |   |- how-to-build-a-house.ipynb
+|- quick-starts
+|   |
+|   |- instructlab-knowledge
+|       |- instructlab-knowledge.ipynb
+|
+|- deep-dives
+|   |- document-conversion
+|       |- enrichment.py
+|       |- vlm.py
+|       |- force-ocr.py
 ```
 
-### Notebooks for Combined InstructLab stages
+### Quick Starts
 
-Notebooks in the `combined-stages` directory go through parts of or an entire model customization workflow that users might want to reference or use.
-Some examples of combined stages are a notebook that runs through training then evaluation or a notebook that goes from document pre-processing to synthetic data generation.
+Users that want jump right into running a specific model customization pipeline should find everything they need in the `quick-starts` directory.
 
-### Notebooks for End-to-End (e2e) use cases
+Each directory under `quick-starts` is for a different model customization pipeline or use case.
 
-Notebooks in the `use-cases` directory reflect real world use cases from start to finish.
+### Deep Dives
+
+Examples in `deep-dives` are modular notebooks or comprehensive tutorials that encompass or are part of a single stage of a model customization pipeline.
