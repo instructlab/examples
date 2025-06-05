@@ -1,4 +1,4 @@
-"""Docling example for PDF conversion with default settings"""
+"""Docling example for PDF conversion with most settings at their defaults"""
 
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import (

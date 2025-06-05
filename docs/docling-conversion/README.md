@@ -23,7 +23,7 @@ $ docling-serve run --enable-ui
 
 ## Document parsing
 
-### Mostly default settings
+### Standard settings
 
 Most of the settings in the example below are already the **defaults** and will produce good and fast results for most documents. Images will be embedded in the output document as Base64 and OCR will be used only for bitmap content. A newer PDF backend (dlparse_v4) is being used.
 
@@ -37,7 +37,7 @@ $ docling /path/to/document.pdf \
     --table-mode accurate
 ```
 
-A Python version of this conversion technique is available in [mostly_default_settings.py](./mostly_default_settings.py).
+A Python version of this conversion technique is available in [standard_settings.py](./standard_settings.py).
 
 ### Force OCR
 
