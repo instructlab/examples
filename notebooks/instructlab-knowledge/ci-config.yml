@@ -1,0 +1,7 @@
+# Inference Mock Config
+
+debug: False
+matches:
+  - contains:
+    - 'I need you to generate three questions that must be answered only with information contained in this passage, and nothing else.'
+    response: '{"fact_single": "What are some common ways to assign rewards to partial answers?", "fact_single_answer": "There are three: prod, which takes the product of rewards across all steps; min, which selects the minimum reward over all steps; and last, which uses the reward from the final step.", "reasoning": "What is the best method for rewarding models?", "reasoning_answer": "That depends on whether the training data is prepared using MC rollout, human annotation, or model annotation.", "summary": "How does QWEN implement model reward?", "summary_answer": "Qwen computes the aggregate reward based on the entire partial reward trajectory. I also uses a method that feeds the performance reference model with partial answers, then only considering the final reward token."}'

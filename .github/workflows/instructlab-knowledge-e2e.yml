@@ -9,10 +9,6 @@ on:
         branches:
           - "main"
 
-env:
-    # dependencies that need to be installed using pip for testing to work
-    TESTING_PIP_DEPENDENCIES: "papermill nbformat ipykernel"
-
 jobs:
     end_to_end:
         strategy:
@@ -33,20 +29,25 @@ jobs:
                 cache: pip
             - name: Install Testing Tools
               run: |
-                  pip install ${{ env.TESTING_PIP_DEPENDENCIES }}
+                  pip install papermill nbformat ipykernel
                   ipython kernel install --name "python3" --user
-            - name: Validate The Notebook
-              working-directory: ./notebooks/instructlab-knowledge
-              run: |
-                git clone https://github.com/instructlab/instructlab.git
-                python3 instructlab/scripts/validate_notebook.py ${{ matrix.notebooks_to_test }}
+            - name: Checkout in-house CI actions
+              uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+              with:
+                repository: iamemilio/ci-actions
+                path: ci-actions
+                ref: inference-mock
+                sparse-checkout: |
+                  actions/validate-notebooks
+                  actions/inference-mock
+            - name: Validate Jupyter Notebooks
+              uses: ./ci-actions/actions/validate-notebooks
+              with:
+                path: "./notebooks/instructlab-knowledge/${{ matrix.notebooks_to_test }}"
             - name: Start Inference Mock Server
-              working-directory: ./tests/inference-mock
-              run: |
-                pip install -r requirements.txt
-                nohup python app.py &
-                sleep 1
-                echo "Inference mock server started on port 11434"
+              uses: ./ci-actions/actions/inference-mock
+              with:
+                config: ./notebooks/instructlab-knowledge/ci-config.yml
             - name: Run End To End Tests
               working-directory: ./notebooks/instructlab-knowledge
               # NOTE: for this to work, cells with parameters need to be tagged as parameters in the target notebooks
