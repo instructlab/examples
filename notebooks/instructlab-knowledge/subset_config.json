@@ -1,0 +1,16 @@
+{
+    "output_dir": "output",
+    "encoder_model": "BAAI/bge-large-en-v1.5",
+    "encoder_type": "bge",
+    "instruction": "Generate embeddings that capture the semantic meaning of text segments across multiple domains, ensuring generalization and suitability for clustering based on semantic similarity.",
+    "query_description": "default",
+    "templates": {
+        "default": "{{ chunk }}"
+    },
+    "template_name": "default",
+    "num_folds": 1,
+    "num_gpus": 1,
+    "subset_sizes": ["5"],
+    "epsilon": 0.01,
+    "seed": 148
+}
