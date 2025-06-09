@@ -32,7 +32,7 @@ class IndentedDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(IndentedDumper, self).increase_indent(flow, False)
 
-def generate_seed_examples(contribution_name: str, contribution_dir: str, contribution_metadata: dict, num_seed_examples: int, api_key: str, api_url: str, model_id: str) -> Path:
+def generate_seed_examples(contribution_name: str, contribution_dir: str, domain: str, summary: str, num_seed_examples: int, api_key: str, api_url: str, model_id: str) -> Path:
     """
     Creates a seed dataset from a path
     Args:
@@ -123,11 +123,56 @@ def generate_seed_examples(contribution_name: str, contribution_dir: str, contri
             ]
         })
     
-    data['document_outline'] = contribution_metadata["summary"]
-    data['domain'] = contribution_metadata["domain"]
+    data['document_outline'] = summary
+    data['domain'] = domain
     
     Path.unlink(qna_output_path, missing_ok=True) # shouldn't be necessary but was. jupyter caching thing?
     with open(qna_output_path, 'w') as yaml_file:
         yaml.dump(data, yaml_file, Dumper=IndentedDumper, default_flow_style=False, sort_keys=False, width=80)
     
     return qna_output_path
+
+def review_seed_examples_file(seed_examples_path: Path, num_seed_examples: int = 5, num_qa_pairs: int = 3) -> None:
+    with open(seed_examples_path, 'r') as yaml_file:
+        yaml_data = yaml.safe_load(yaml_file)
+        errors = []
+        print(f"Reviewing seed examples file at {seed_examples_path.resolve()}")
+
+        # Check for document_outline
+        if 'document_outline' not in yaml_data:
+            errors.append("Missing contribution summary in 'document_outline'")
+        else:
+            # contribution summary is called document_outline internally
+            print(f"Found contribution summary in 'document_outline'...")
+
+        # Check for domain
+        if 'domain' not in yaml_data:
+            errors.append("Missing 'domain'")
+        else:
+            print(f"Found 'domain'...")
+
+        # Check seed_examples
+        seed_examples = yaml_data.get('seed_examples')
+        if not seed_examples:
+            errors.append("'seed_examples' section is missing or empty.")
+        elif len(seed_examples) != num_seed_examples:
+            errors.append(f"'seed_examples' should contain {num_seed_examples} examples, found {len(seed_examples)}.")
+
+        if seed_examples:
+            print(f"Found expected number ({num_seed_examples}) of 'seed_examples'...")
+            for i, example in enumerate(seed_examples, start=1):
+                qa_pairs = example.get('questions_and_answers')
+                if not qa_pairs:
+                    errors.append(f"Seed Example {i} is missing 'questions_and_answers'.")
+                elif len(qa_pairs) != num_qa_pairs:
+                    errors.append(f"Seed Example {i} should contain {num_qa_pairs} question-answer pairs, found {len(qa_pairs)}.")
+                else:
+                    print(f"Seed Example {i} contains expected number ({num_qa_pairs}) of 'question_and_answers'...")
+
+        if errors:
+            print("\nERROR! Seed Examples validation failed with the following issues:")
+            for err in errors:
+                print(f"- {err}")
+        else:
+            print(f"Seed Examples YAML {seed_examples_path.resolve()} is valid :)")
+        print(f"\n")
