@@ -143,7 +143,7 @@ def review_seed_examples_file(seed_examples_path: Path, num_seed_examples: int =
             errors.append("Missing contribution summary in 'document_outline'")
         else:
             # contribution summary is called document_outline internally
-            print(f"Found contribution summary in 'document_outline'...")
+            print(f"Found contribution summary...")
 
         # Check for domain
         if 'domain' not in yaml_data:
@@ -157,9 +157,10 @@ def review_seed_examples_file(seed_examples_path: Path, num_seed_examples: int =
             errors.append("'seed_examples' section is missing or empty.")
         elif len(seed_examples) != num_seed_examples:
             errors.append(f"'seed_examples' should contain {num_seed_examples} examples, found {len(seed_examples)}.")
+        else:
+            print(f"Found expected number ({num_seed_examples}) of 'contexts'...")
 
         if seed_examples:
-            print(f"Found expected number ({num_seed_examples}) of 'seed_examples'...")
             for i, example in enumerate(seed_examples, start=1):
                 qa_pairs = example.get('questions_and_answers')
                 if not qa_pairs:
