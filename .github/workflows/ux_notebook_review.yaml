@@ -41,7 +41,6 @@ jobs:
       - name: Run review script
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        # Use the notebook-path input if triggered manually, else default
         run: |
           echo "Reviewing notebooks under path: ${{ github.event.inputs.notebook-path || 'ux-notebook-reviewer/*.ipynb' }}"
           python ux-notebook-reviewer/review-notebook-ghscript.py --path "${{ github.event.inputs.notebook-path || 'ux-notebook-reviewer/*.ipynb' }}" > review.md
@@ -67,4 +66,4 @@ jobs:
             $(sed 's/^/    /' review.md)
             ```
             </details>
-EOF
+            
