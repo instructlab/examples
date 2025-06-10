@@ -41,7 +41,7 @@ jobs:
 
       - name: Run review script
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.UX_REVIEW }}
         run: |
           NOTEBOOK_PATH="${{ github.event.inputs.notebook-path }}"
           if [ -z "$NOTEBOOK_PATH" ]; then
