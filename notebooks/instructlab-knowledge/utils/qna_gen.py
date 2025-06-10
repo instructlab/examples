@@ -171,7 +171,7 @@ def review_seed_examples_file(seed_examples_path: Path, num_seed_examples: int =
                     print(f"Seed Example {i} contains expected number ({num_qa_pairs}) of 'question_and_answers'...")
 
         if errors:
-            print("\nERROR! Seed Examples validation failed with the following issues:")
+            print("\n\033[31mERROR! Seed Examples validation failed with the following issues:\033[0m")
             for err in errors:
                 print(f"- {err}")
         else:
