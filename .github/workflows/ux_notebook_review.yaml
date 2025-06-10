@@ -1,4 +1,4 @@
-name: "UX Notebook Review"
+name: "UX Notebook Review GH Action"
 
 on:
   workflow_dispatch:
