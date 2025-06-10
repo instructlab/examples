@@ -152,22 +152,19 @@ We also welcome feedback and suggestions via GitHub Issues.
 A: InstructLab is an open-source project designed to enable organizations to build, extend, and customize Large Language Models (LLMs) with high-quality, targeted instruction data. This repository provides practical, step-by-step Jupyter Notebook examples specifically crafted to demonstrate how to use the InstructLab framework for various AI model customization tasks.
 
 **Q: What's the difference between 'Modular Examples' and 'End-to-End Flows'?**
-A:
 * **Modular Examples (`01_model-customization/`)**: These notebooks focus on individual techniques or components of AI model customization (e.g., specific fine-tuning methods, data formatting, evaluation metrics). They are designed for deep dives into particular aspects.
 * **End-to-End Flows (`02_end-to-end-flows/`)**: These notebooks demonstrate complete pipelines, showing how multiple modular components are combined to solve a larger, real-world industry problem, from data preparation to model deployment.
 
 **Q: How do I choose the right example for my needs?**
-A:
 * If you're new, start with the **`00_getting-started/`** notebooks.
 * If you want to understand a specific technique (like LoRA fine-tuning), explore **`01_model-customization/`**.
 * If you're looking for a complete solution for a particular industry or use case, check out the **`02_end-to-end-flows/`**.
 
 **Q: My notebook isn't running, or I'm getting an error. What should I do?**
-A:
 * First, ensure you've followed all steps in the "Getting Started" section, especially regarding environment setup and LLM runtime (e.g., Ollama).
 * Check the specific notebook for any additional prerequisites or unique setup instructions.
 * Verify your local LLM (e.g., Ollama) is running and the correct model is pulled.
 * If the issue persists, please open a GitHub Issue in this repository, providing details about your setup, the example you're trying to run, and the full error message.
 
 **Q: How can I ensure my community contribution gets vetted and added to the 'vetted/' section?**
-A: Community contributions are greatly valued! Submit your example via a Pull Request (PR) to the `03_community-examples/unvetted/` directory. The team will review it against our quality standards, including clarity, reproducibility, and adherence to best practices. Once approved, it will be moved to the `vetted/` section.
+Community contributions are greatly valued! Submit your example via a Pull Request (PR) to the `03_community-examples/unvetted/` directory. The team will review it against our quality standards, including clarity, reproducibility, and adherence to best practices. Once approved, it will be moved to the `vetted/` section.
