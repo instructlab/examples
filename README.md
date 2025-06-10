@@ -45,7 +45,7 @@ You can use [GitHub's built-in notebook viewer](https://github.com/instructlab/e
 
 ---
 
-### Run Locally
+### Run Locally (EXAMPLE FLOW!!!!)
 
 To get started with the InstructLab examples and run them on your local machine, follow these steps:
 
@@ -61,12 +61,11 @@ To get started with the InstructLab examples and run them on your local machine,
         ```bash
         # Create and activate a virtual environment (example using venv)
         python -m venv .venv
-        source .venv/bin/activate  # On Windows, use `.\.venv\Scripts\activate`
+        source .venv/bin/activate 
 
         # Install Jupyter Lab and other common dependencies
         pip install jupyterlab matplotlib numpy pandas scikit-learn
         ```
-    * *(Rationale for `requirements.txt`):* While not all examples will use every package, a `requirements.txt` at the root of the repository (which you would need to create and maintain) is a **best practice** for Python projects. Individual examples might also have their own `requirements.txt` or explicit `pip install` commands within their notebooks for specific, unique dependencies (e.g., `peft`, `transformers`). This allows for precise dependency management for each example.
 
 3.  **Install InstructLab:**
     * Instructions for installing the core InstructLab framework. This will depend on the official InstructLab installation method (e.g., `pip install instructlab` if it's a pip package, or cloning its repo and installing from source).
@@ -74,8 +73,6 @@ To get started with the InstructLab examples and run them on your local machine,
     # Example: If InstructLab is available via pip
     pip install instructlab
     ```
-    *(Note: You will need to replace this with the exact, official InstructLab installation steps).*
-
 4.  **Prepare Local LLM Runtime (if examples use local models):**
     * If your examples leverage local Large Language Models (LLMs) via Ollama, ensure it's installed and running.
     ```bash
