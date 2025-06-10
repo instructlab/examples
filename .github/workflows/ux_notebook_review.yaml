@@ -7,11 +7,12 @@ on:
         description: 'File path or glob for notebooks to review (relative to repo root)'
         required: false
         default: 'ux-notebook-reviewer/*.ipynb'
+
   pull_request:
-    # run when PR modifies notebooks or the workflow itself
     paths:
       - 'ux-notebook-reviewer/**'
       - '.github/workflows/ux_notebook_review.yml'
+
   push:
     branches:
       - ux-notebook-reviewer
@@ -42,11 +43,16 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          echo "Reviewing notebooks under path: ${{ github.event.inputs.notebook-path || 'ux-notebook-reviewer/*.ipynb' }}"
-          python ux-notebook-reviewer/review-notebook-ghscript.py --path "${{ github.event.inputs.notebook-path || 'ux-notebook-reviewer/*.ipynb' }}" > review.md
-      
+          NOTEBOOK_PATH="${{ github.event.inputs.notebook-path }}"
+          if [ -z "$NOTEBOOK_PATH" ]; then
+            NOTEBOOK_PATH='ux-notebook-reviewer/*.ipynb'
+          fi
+
+          echo "Reviewing notebooks under path: $NOTEBOOK_PATH"
+          python ux-notebook-reviewer/review-notebook-ghscript.py --path "$NOTEBOOK_PATH" > review.md
+
       - name: Upload review artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ux-notebook-review
           path: review.md
