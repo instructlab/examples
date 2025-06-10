@@ -147,24 +147,16 @@ def add_icls(qna_yaml: Dict[str, str], chunked_document: Dataset) -> Dataset:
             )
         )
     chunked_document_all_icl = safe_concatenate_datasets(chunked_document_all_icl)
-    chunked_document_all_icl = chunked_document_all_icl.map(
-        lambda x: {
-            "chunks": chunk_document(
-                [x["document"]], server_ctx_size=4096, chunk_word_count=1024
-            )
-            if get_token_count(x["document"], tokenizer) > 1024
-            else [x["document"]]
-        }
-    )
+    for c in chunked_document_all_icl:
+        if get_token_count(c["document"], tokenizer) > 1024:
+            raise ValueError("Chunk exceeds token count of 1024")
+    
+
     df = chunked_document_all_icl.to_pandas()
-    df_exploded = df.explode("chunks").reset_index(drop=True)
-    new_ds = Dataset.from_pandas(df_exploded)
-    new_ds = new_ds.remove_columns("document").rename_columns(
-        {"chunks": "document"}
-    )
+    new_ds = Dataset.from_pandas(df)
 
     # Only keep document greater than 100 tokens
     new_ds = new_ds.filter(
-        lambda x: get_token_count(x["document"], tokenizer) > 100
+        lambda c: get_token_count(c["document"], tokenizer) > 100
     )
     return new_ds
