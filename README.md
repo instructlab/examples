@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-[Purpose](#purpose) | [Why This Structure?](#why-this-structure) | [Quick Start](#quick-start) | [Repository Structure](#repository-structure) | [Contributing](#contributing) | [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+[Purpose](#purpose) | [Why This Structure?](#why-this-structure) | [Quick Start](#quick-start) | [Repository Structure](#repository-structure) | [Contributing](#contributing) | [(FAQs)](#frequently-asked-questions-faq)
 
 ## Purpose
 
