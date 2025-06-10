@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/ux_notebook_review.yml
 name: "UX Notebook Review"
 
 on:
