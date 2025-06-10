@@ -1,0 +1,71 @@
+cat << 'EOF' > .github/workflows/ux_notebook_review.yml
+name: "UX Notebook Review"
+
+on:
+  workflow_dispatch:
+    inputs:
+      notebook-path:
+        description: 'File path or glob for notebooks to review (relative to repo root)'
+        required: false
+        default: 'ux-notebook-reviewer/*.ipynb'
+  pull_request:
+    # run when PR modifies notebooks or the workflow itself
+    paths:
+      - 'ux-notebook-reviewer/**'
+      - '.github/workflows/ux_notebook_review.yml'
+  push:
+    branches:
+      - ux-notebook-reviewer
+    paths:
+      - 'ux-notebook-reviewer/**'
+      - '.github/workflows/ux_notebook_review.yml'
+
+jobs:
+  review:
+    name: Run UX Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai nbformat ipython ipywidgets
+
+      - name: Run review script
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        # Use the notebook-path input if triggered manually, else default
+        run: |
+          echo "Reviewing notebooks under path: ${{ github.event.inputs.notebook-path || 'ux-notebook-reviewer/*.ipynb' }}"
+          python ux-notebook-reviewer/review-notebook-ghscript.py --path "${{ github.event.inputs.notebook-path || 'ux-notebook-reviewer/*.ipynb' }}" > review.md
+      
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ux-notebook-review
+          path: review.md
+
+      - name: Comment on pull request
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Automated UX Notebook Review
+            <details>
+            <summary>Click to expand review output</summary>
+
+            ```markdown
+            $(sed 's/^/    /' review.md)
+            ```
+            </details>
+EOF
