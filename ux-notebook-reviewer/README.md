@@ -1,3 +1,8 @@
+ ## Try out on the cloud
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/instructlab/examples/blob/ux-notebook-reviewer/ux-notebook-reviewer/ux_notebook_reviewer.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/instructlab/examples/ux-notebook-reviewer?urlpath=lab/tree/ux-notebook-reviewer/ux_notebook_reviewer.ipynb)
+
 # UX Notebook Reviewer
 
 An interactive Jupyter Notebook tool designed to **automate User Experience (UX) reviews** of other notebooks against a set of best-practice guidelines, leveraging your local Large Language Model (LLM) via Ollama/OpenAI.
