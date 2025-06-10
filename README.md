@@ -2,6 +2,10 @@
 
 **Your go-to resource for practical, step-by-step examples on AI model customization with InstructLab.**
 
+## Table of Contents
+
+[Purpose](#purpose) | [Why This Structure?](#why-this-structure) | [Quick Start](#quick-start) | [Repository Structure](#repository-structure) | [Contributing](#contributing) | [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+
 ## Purpose
 
 This repository aims to be an informative and useful resource for AI model customization. It provides:
@@ -23,7 +27,7 @@ This repository's structure is designed to maximize usability, clarity, and main
 
 This thoughtful organization aims to provide an intuitive experience, making it easier to discover, utilize, and contribute to the repository.
 
-## Quick Start / Getting Started
+## Quick Start
 
 ### Run in Google Colab (No Setup Required)
 
