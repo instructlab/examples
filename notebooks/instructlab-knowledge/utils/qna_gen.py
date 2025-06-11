@@ -122,6 +122,7 @@ def generate_seed_examples(contribution_name: str, contribution_dir: str, domain
                 } for example in qnas[chunk_id]
             ]
         })
+
     
     data['document_outline'] = summary
     data['domain'] = domain
@@ -132,7 +133,7 @@ def generate_seed_examples(contribution_name: str, contribution_dir: str, domain
     
     return qna_output_path
 
-def review_seed_examples_file(seed_examples_path: Path, num_seed_examples: int = 5, num_qa_pairs: int = 3) -> None:
+def review_seed_examples_file(seed_examples_path: Path, min_seed_examples: int = 5, num_qa_pairs: int = 3) -> None:
     with open(seed_examples_path, 'r') as yaml_file:
         yaml_data = yaml.safe_load(yaml_file)
         errors = []
@@ -155,18 +156,18 @@ def review_seed_examples_file(seed_examples_path: Path, num_seed_examples: int =
         seed_examples = yaml_data.get('seed_examples')
         if not seed_examples:
             errors.append("'seed_examples' section is missing or empty.")
-        elif len(seed_examples) != num_seed_examples:
-            errors.append(f"'seed_examples' should contain {num_seed_examples} examples, found {len(seed_examples)}.")
+        elif len(seed_examples) < min_seed_examples:
+            errors.append(f"'seed_examples' should contain at least {min_seed_examples} examples, found {len(seed_examples)}. Please add {min_seed_examples - len(seed_examples)} more seed example(s)")
         else:
-            print(f"Found expected number ({num_seed_examples}) of 'contexts'...")
+            print(f"Found {len(seed_examples)} 'contexts' in 'sed_examples'. Minimum expected number is {min_seed_examples}...")
 
         if seed_examples:
             for i, example in enumerate(seed_examples, start=1):
                 qa_pairs = example.get('questions_and_answers')
                 if not qa_pairs:
-                    errors.append(f"Seed Example {i} is missing 'questions_and_answers'.")
+                    errors.append(f"Seed Example {i} is missing 'questions_and_answers' section.")
                 elif len(qa_pairs) != num_qa_pairs:
-                    errors.append(f"Seed Example {i} should contain {num_qa_pairs} question-answer pairs, found {len(qa_pairs)}.")
+                    errors.append(f"Seed Example {i} should contain {num_qa_pairs} question-answer pairs, found {len(qa_pairs)}. Please add {num_qa_pairs - len(qa_pairs)} more question-answer pair(s) to seed example {i}")
                 else:
                     print(f"Seed Example {i} contains expected number ({num_qa_pairs}) of 'question_and_answers'...")
 
