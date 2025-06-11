@@ -32,13 +32,13 @@ class IndentedDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(IndentedDumper, self).increase_indent(flow, False)
 
-def generate_seed_examples(contribution_name: str, contribution_dir: str, domain: str, summary: str, num_seed_examples: int, api_key: str, api_url: str, model_id: str) -> Path:
+def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, output_dir: Path, domain: str, summary: str, num_seed_examples: int, api_key: str, api_url: str, model_id: str) -> Path:
     """
     Creates a seed dataset from a path
     Args:
         contribution_name (str):        Name of the contribution
-        contribution_dir (str):         Path to the artifacts for the contribution. contribution_dir should contain
-                                        a chunks/chunks.jsonl file
+        chunks_jsonl_path (Path):       Path to the chunks/chunks.jsonl file
+        output_dir (Path):              Path to output dir for the qna.yaml and intermediate outputs by docling-sdg
         contribution_metadata (dict):   Dictionary with the domain and summary of the contribution
         num_seed_examples (str):        Number of seed examples user wishes to generate for the contribution
         api_key (str):                  API key for the model used to generate questions and answers from contexts
@@ -51,7 +51,6 @@ def generate_seed_examples(contribution_name: str, contribution_dir: str, domain
     dataset[contribution_name] = {}
     dataset[contribution_name]["chunks"] = []
 
-    chunks_jsonl_path = contribution_dir / "chunks" / "chunks.jsonl"
     if not chunks_jsonl_path.exists():
         raise ValueError(f"chunks.jsonl does not exist but should at {chunks_jsonl_path}")
 
@@ -89,7 +88,7 @@ def generate_seed_examples(contribution_name: str, contribution_dir: str, domain
     generate_options.api_key = SecretStr(api_key)
     generate_options.url = api_url
     generate_options.model_id = model_id
-    generate_options.generated_file = contribution_dir / "authoring" / f"qagen-{contribution_name}.json"
+    generate_options.generated_file = output_dir / f"qagen-{contribution_name}.json"
     gen = Generator(generate_options=generate_options)
 
     Path.unlink(generate_options.generated_file, missing_ok=True)
@@ -109,7 +108,7 @@ def generate_seed_examples(contribution_name: str, contribution_dir: str, domain
                 qnas[chunk_id] = []
             qnas[chunk_id].append({'question': entry['question'], 'answer': entry['answer']})
 
-    qna_output_path = contribution_dir / "authoring" / "qna.yaml"
+    qna_output_path = output_dir / "qna.yaml"
     
     data = {'seed_examples': []}
     for chunk_id, context in chunk_id_to_text.items():
