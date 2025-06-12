@@ -3,27 +3,39 @@ import json
 import os
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
-from log_utils import logger
+from .log_utils import logger
 
 MAX_PREVIEW_LENGTH = 30  # Max characters shown from cell text in summary
+SUPPORTED_FILE_EXTENSIONS = [".pdf", ".json"]
 
-def get_pdf_files(path: str) -> List[str]:
+def get_supported_files(path: str) -> List[str]:
     """
-    Returns a list of PDF file paths from a given file or directory.
+    Returns a list of file paths from the given path that match supported extensions.
+    """
+    return [
+        os.path.join(path, f)
+        for f in os.listdir(path)
+        if os.path.isfile(os.path.join(path, f)) and any(f.endswith(ext) for ext in SUPPORTED_FILE_EXTENSIONS)
+    ]
+
+def get_supported_files(path: str, extensions: List[str] = [".pdf", ".json"]) -> List[str]:
+    """
+    Returns a list containing one or more files that are in SUPPORTED_FILE_EXTENSIONS
 
     Args:
-        path: Path to a single .pdf file or directory containing .pdf files.
+        path: Path to a single file or directory.
+        extensions: List of file extensions to include.
 
     Returns:
-        List of .pdf file paths.
+        List of matching file paths.
     """
-    if os.path.isfile(path) and path.endswith(".pdf"):
+    if os.path.isfile(path) and any(path.endswith(ext) for ext in extensions):
         return [path]
     elif os.path.isdir(path):
         return [
             os.path.join(path, f)
             for f in os.listdir(path)
-            if f.endswith(".pdf")
+            if any(f.endswith(ext) for ext in extensions)
         ]
     return []
 
@@ -50,41 +62,48 @@ def save_results(results, output_file: str) -> None:
         json.dump(results, f, indent=4)
     logger.info(f"📁 Results saved to {output_file}")
 
-def generate_summary(results) -> None:
+def generate_summary(results, file=None) -> None:
     """
-    Prints a human-readable summary of merged table cell issues per file.
+    Prints a human-readable summary of merged table cell issues per file,
+    optionally also writing to a file.
 
     Args:
-        results: Dictionary containing analysis results for each PDF.
+        results: Dictionary containing analysis results for each document.
+        file: Optional file-like object (e.g., open file or StringIO) to also write output.
     """
-    logger.info("📊 Summary Report")
-    logger.info("=" * 50)
-    for file, data in results.items():
-        logger.info(f"\n📂 File: {file}")
+    def out(msg):
+        print(msg)               # Always print to notebook
+        if file:
+            print(msg, file=file)  # Also write to file if provided
+
+    out("📊 Summary Report")
+    out("=" * 50)
+    for path, data in results.items():
+        out(f"\n📂 File: {path}")
 
         total_tables = data.get("table_count", 0)
         merged_cells = data.get("merged_table_cells", [])
         tables_with_merged_cells = len(set(cell["page"] for cell in merged_cells))
 
         if total_tables == 0:
-            logger.info("ℹ️  No tables detected in this document.")
+            out("ℹ️  No tables detected in this document.")
             continue
 
-        logger.info(f"📋 Found {total_tables} table(s); {tables_with_merged_cells} table(s) have merged cells.")
+        out(f"📋 Found {total_tables} table(s); {tables_with_merged_cells} table(s) have merged cells.")
 
         if not data.get("merged_cell_pages"):
-            logger.info("✅ Tables detected, but no merged cells found.")
+            out("✅ Tables detected, but no merged cells found.")
             continue
 
         pages = format_pages(data["merged_cell_pages"])
-        logger.info(f"⚠️ Merged Table Cells Detected on Pages: {pages}")
+        out(f"⚠️ Merged Table Cells Detected on Pages: {pages}")
 
         for cell in merged_cells:
             page = cell.get("page")
             text = cell.get("text", "").strip()
             if len(text) > MAX_PREVIEW_LENGTH:
                 text = text[:MAX_PREVIEW_LENGTH] + "..."
-            logger.info(f"   - Page {page}: \"{text}\" (row={cell['row']}, column={cell['column']})")
+            out(f"   - Page {page}: \"{text}\" (row={cell['row']}, column={cell['column']})")
 
 def format_pages(pages) -> str:
     """
