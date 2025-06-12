@@ -39,25 +39,6 @@ def get_seed_dataset(chunks_path: Path, seed_examples_path: Path) -> Dataset:
 
     return ds
 
-def is_dir_valid(path: str) -> None:
-    """
-    Returns whether or not a directory contains a qna.yaml and one or more .txt chunks
-    Args:
-        path (str):       Path to directory of qna.yaml and chunks
-    Returns:
-        base_path (Path): pathlib.Path to a directory that can create a jsonl
-                          of seed data
-    """
-    base_path = Path(path)
-    if not base_path.is_dir():
-        raise ValueError("Base path must be a directory")
-
-    files = list(base_path.iterdir())
-    has_qna = any(f.name == 'qna.yaml' for f in files)
-    has_txt = any(f.suffix == '.txt' for f in files)
-    if not has_qna or not has_txt:
-        raise ValueError("Directory does not contain a qna.yaml and chunks")
-
 def read_chunks(chunks_path: Path) -> Dict[str, str]:
     """
     Returns a dictionary with all of the chunks in a chunks.jsonl
