@@ -3,6 +3,8 @@ import yaml
 import random
 
 from pathlib import Path
+
+from docling_sdg.qa.prompts.generation_prompts import QaPromptTemplate
 from pydantic import SecretStr
 from textwrap import wrap
 
@@ -10,6 +12,32 @@ from docling_core.transforms.chunker.hierarchical_chunker import DocChunk, DocMe
 from docling_sdg.qa.utils import get_qa_chunks
 from docling_sdg.qa.generate import Generator
 from docling_sdg.qa.base import GenerateOptions, LlmProvider
+
+CUSTOM_COMBINED_QUESTION_PROMPT =  (
+    "I will provide you a text passage. I need you to generate three questions that "
+    "must be answered only with information contained in this passage, and nothing "
+    "else.\n"
+    'The first question is of type "fact_single", which means that the answer to this '
+    "question is a simple, single piece of factual information contained in the "
+    "context.\n"
+    'The second question is of type "summary", which means that the answer to this '
+    "question summarizes different pieces of factual information contained in the "
+    "context.\n"
+    'The third question is of type "reasoning", which is a question that requires the '
+    "reader to think critically and make an inference or draw a conclusion based on "
+    "the information provided in the passage.\n"
+    "Make sure that the three questions are different. Make sure that every question "
+    " has a provided answer\n\n"
+    "{customization_str}\n\n"
+    "You will format your generation as a python dictionary, such as:\n\n"
+    '{"fact_single": <The "fact_single" type question you thought of>, '
+    '"fact_single_answer: <Answer to the "fact_single" question>, "summary": <the '
+    '"summary" type question you thought of>, "summary_answer": <Answer to the '
+    '"summary" question>, "reasoning": <the "reasoning" type question you thought '
+    'of>, "reasoning_answer": <Answer to the "reasoning" question>}\n\n'
+    "Only provide the python dictionary as your output. Make sure you provide an answer for each question.\n\n"
+    "Context: {context_str}"
+)
 
 chunk_filter = [
     lambda chunk: len(str(chunk.text)) > 500
@@ -32,7 +60,7 @@ class IndentedDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(IndentedDumper, self).increase_indent(flow, False)
 
-def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, output_dir: Path, domain: str, summary: str, num_seed_examples: int, api_key: str, api_url: str, model_id: str) -> Path:
+def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, output_dir: Path, domain: str, summary: str, num_seed_examples: int, api_key: str, api_url: str, model_id: str, customization_str: str | None = None) -> Path:
     """
     Creates a seed dataset from a path
     Args:
@@ -44,6 +72,7 @@ def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, outp
         api_key (str):                  API key for the model used to generate questions and answers from contexts
         api_url (str):                  Endpoint for the model used to generate questions and answers from contexts
         model_id (str):                 Name of the model used to generate questions and answers from contexts
+        customization_str (str | None)  A directive for how to stylistically customize the generated QAs
     Returns:
         qna_output_path (pathlib.Path): Path to the generated seed example file
     """
@@ -89,6 +118,15 @@ def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, outp
     generate_options.url = api_url
     generate_options.model_id = model_id
     generate_options.generated_file = output_dir / f"qagen-{contribution_name}.json"
+
+    if customization_str is not None:
+        generate_options.prompts = [QaPromptTemplate(
+            template=CUSTOM_COMBINED_QUESTION_PROMPT,
+            keys=["context_str", "customization_str"],
+            labels=["fact_single", "summary", "reasoning"],
+            type_="question",
+        )]
+
     gen = Generator(generate_options=generate_options)
 
     Path.unlink(generate_options.generated_file, missing_ok=True)
