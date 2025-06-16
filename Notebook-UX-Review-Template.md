@@ -22,7 +22,7 @@ Use this template to review notebooks using the UX guidelines.
 | Guideline | Status | Suggestion |
 |-----------|--------|------------|
 | Clear Header | ✅🔹❌➖ | Clear, succinct title (<15 words) of notebook's purpose |
-| Goal/Objective Present | ✅🔹❌➖ | Brief summary (1–2 lines) of what the notebook does and why |
+| Goal/Objective Present | ✅🔹❌➖ | Summary of what the notebook does and why |
 | Setup & Pre-Requisites | ✅🔹❌➖ | Includes installation steps, required files, and environment assumptions |
 | Section Headers/Markdown | ✅🔹❌➖ | Each code cell/section is preceded by a markdown block explaining its purpose |
 | Handle Errors or Outputs | ✅🔹❌➖ | Highlights expected outputs or common errors (e.g. YAML structure, missing files, etc...) |

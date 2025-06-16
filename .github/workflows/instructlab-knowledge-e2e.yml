@@ -22,14 +22,15 @@ jobs:
         runs-on: ubuntu-latest
         env:
             # customize the workflow here
-            API_URL: "http://127.0.0.1:11434/v1"
-            MODEL_ID: "Mixtral-8x7B" # must be open-AI compatible when using inference mock
+            MODEL_ENDPOINT_URL: "http://127.0.0.1:11434/v1"
+            MODEL_API_KEY: "none"
+            MODEL_NAME: "Mixtral-8x7B" # must be open-AI compatible when using inference mock
         steps:
             - uses: actions/checkout@v3
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
-                python-version: '3.11'
+                python-version: '3.12'
                 cache: pip
             - name: Install Testing Tools
               run: |
@@ -50,4 +51,4 @@ jobs:
             - name: Run End To End Tests
               working-directory: ./notebooks/instructlab-knowledge
               # NOTE: for this to work, cells with parameters need to be tagged as parameters in the target notebooks
-              run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp -p API_URL $API_URL -p MODEL_ID $MODEL_ID
+              run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp
