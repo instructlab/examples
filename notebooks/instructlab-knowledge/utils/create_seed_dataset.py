@@ -119,7 +119,7 @@ def safe_concatenate_datasets(datasets: list[Dataset]) -> Dataset:
 def get_token_count(text, tokenizer):
     return len(tokenizer.tokenize(text))
 
-def add_icls(qna_yaml: Dict[str, str], chunked_document: Dataset) -> Dataset:
+def add_icls(qna_yaml: Dict[str, str], chunked_document: Dataset, max_token_count: int = 1024) -> Dataset:
     """
     Add the ICLS label to the dataset.
     Args:
@@ -147,9 +147,15 @@ def add_icls(qna_yaml: Dict[str, str], chunked_document: Dataset) -> Dataset:
             )
         )
     chunked_document_all_icl = safe_concatenate_datasets(chunked_document_all_icl)
+    def truncate_chunk(chunk: str):
+        words = chunk.split()
+        if len(words) > 7:
+            return " ".join(words[:3]) + " ... " + " ".join(words[-3:])
+        return chunk
+
     for c in chunked_document_all_icl:
-        if get_token_count(c["document"], tokenizer) > 1024:
-            raise ValueError("Chunk exceeds token count of 1024")
+        if get_token_count(c["document"], tokenizer) > max_token_count:
+            raise ValueError(f"Chunk \"{truncate_chunk(c["document"])}\" exceeds token count of {max_token_count}")
     
 
     df = chunked_document_all_icl.to_pandas()
