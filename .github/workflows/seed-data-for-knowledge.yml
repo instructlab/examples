@@ -1,7 +1,7 @@
-# This workflow is designed to test the notebooks in "notebooks/instructlab-knowledge"
+# This workflow is designed to test the notebooks in "notebooks/chunking"
 # This job can be coppied for end to end tests of notebooks in other working directories
 
-name: Instructlab Knowledge End to End Tests
+name: Seed Data for knowledge Tests
 
 # trigger on open pull requests only
 on:
@@ -17,8 +17,8 @@ jobs:
     end_to_end:
         strategy:
             matrix:
-                # add notebooks within the "notebooks/instructlab-knowledge" repo to end to end test here
-                notebooks_to_test: ["instructlab-knowledge.ipynb"]
+                # add notebooks within the "model-customization/data-processing/seed-data-for-knowledge" repo to end to end test here
+                notebooks_to_test: ["seed-data-for-knowledge.ipynb"]
         runs-on: ubuntu-latest
         env:
             # customize the workflow here
@@ -46,7 +46,7 @@ jobs:
             - name: Validate Jupyter Notebooks
               uses: ./ci-actions/actions/validate-notebooks
               with:
-                path: "./quick-starts/instructlab-knowledge/${{ matrix.notebooks_to_test }}"
+                path: "./model-customization/data-processing/seed-data-for-knowledge/${{ matrix.notebooks_to_test }}"
             - name: Start Inference Mock Server
               working-directory: ./tests/inference-mock
               run: |
@@ -55,6 +55,6 @@ jobs:
                 sleep 1
                 echo "Inference mock server started on port 11434"
             - name: Run End To End Tests
-              working-directory: ./quick-starts/instructlab-knowledge
+              working-directory: ./model-customization/data-processing/seed-data-for-knowledge
               # NOTE: for this to work, cells with parameters need to be tagged as parameters in the target notebooks
               run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp

@@ -1,7 +1,7 @@
-# This workflow is designed to test the notebooks in "notebooks/instructlab-knowledge"
+# This workflow is designed to test the notebooks in "notebooks/conversion"
 # This job can be coppied for end to end tests of notebooks in other working directories
 
-name: Instructlab Knowledge End to End Tests
+name: Conversion End to End Tests
 
 # trigger on open pull requests only
 on:
@@ -18,13 +18,8 @@ jobs:
         strategy:
             matrix:
                 # add notebooks within the "notebooks/instructlab-knowledge" repo to end to end test here
-                notebooks_to_test: ["instructlab-knowledge.ipynb"]
+                notebooks_to_test: ["docling-conversion.ipynb"]
         runs-on: ubuntu-latest
-        env:
-            # customize the workflow here
-            MODEL_ENDPOINT_URL: "http://127.0.0.1:11434/v1"
-            MODEL_API_KEY: "none"
-            MODEL_NAME: "Mixtral-8x7B" # must be open-AI compatible when using inference mock
         steps:
             - uses: actions/checkout@v3
             - name: Set up Python
@@ -46,15 +41,8 @@ jobs:
             - name: Validate Jupyter Notebooks
               uses: ./ci-actions/actions/validate-notebooks
               with:
-                path: "./quick-starts/instructlab-knowledge/${{ matrix.notebooks_to_test }}"
-            - name: Start Inference Mock Server
-              working-directory: ./tests/inference-mock
-              run: |
-                pip install -r requirements.txt
-                nohup python app.py &
-                sleep 1
-                echo "Inference mock server started on port 11434"
+                path: "./model-customization/data-processing/conversion/${{ matrix.notebooks_to_test }}"
             - name: Run End To End Tests
-              working-directory: ./quick-starts/instructlab-knowledge
+              working-directory: ./model-customization/data-processing/conversion
               # NOTE: for this to work, cells with parameters need to be tagged as parameters in the target notebooks
               run: papermill ${{ matrix.notebooks_to_test }} ${{ matrix.notebooks_to_test }}.tmp
