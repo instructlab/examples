@@ -60,28 +60,56 @@ class IndentedDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(IndentedDumper, self).increase_indent(flow, False)
 
-def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, output_dir: Path, domain: str, summary: str, num_seed_examples: int, api_key: str, api_url: str, model_id: str, customization_str: str | None = None) -> Path:
+def save_random_chunk_selection(chunks_jsonl_path: Path, output_dir: Path, num_seed_examples: int) -> Path:
     """
     Creates a seed dataset from a path
+    Args:
+        chunks_jsonl_path (Path):       Path to the chunks.jsonl file
+        output_dir (Path):              Path to output dir for select_chunks.jsonl
+        num_seed_examples (int):        Number of chunks user wishes to randomly select
+    Returns:
+        selected_chunks_file_path (pathlib.Path): Path to the generated seed example file
+    """
+    if not chunks_jsonl_path.exists():
+        raise ValueError(f"chunks.jsonl does not exist but should at {chunks_jsonl_path}")
+
+    chunks = []
+
+    with open(chunks_jsonl_path, 'r') as file:  # khaled was here
+        for line in file:
+            chunk = json.loads(line)
+            chunks.append(chunk)
+
+    selected_chunks = random.sample(chunks, num_seed_examples)
+
+    selected_chunks_file_path = output_dir / "selected_chunks.jsonl"
+    with open(selected_chunks_file_path, "w", encoding="utf-8") as file:
+        for chunk in selected_chunks:
+            json.dump(chunk, file)
+            file.write("\n")
+
+    return selected_chunks_file_path
+
+def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, output_dir: Path, api_key: str, api_url: str, model_id: str, domain: str, summary: str, customization_str: str | None = None) -> Path:
+    """
+    Generates questions and answers per chunk via docling sdg. Saves them in an intermediate file
     Args:
         contribution_name (str):        Name of the contribution
         chunks_jsonl_path (Path):       Path to the chunks/chunks.jsonl file
         output_dir (Path):              Path to output dir for the qna.yaml and intermediate outputs by docling-sdg
-        contribution_metadata (dict):   Dictionary with the domain and summary of the contribution
-        num_seed_examples (str):        Number of seed examples user wishes to generate for the contribution
         api_key (str):                  API key for the model used to generate questions and answers from contexts
         api_url (str):                  Endpoint for the model used to generate questions and answers from contexts
         model_id (str):                 Name of the model used to generate questions and answers from contexts
         customization_str (str | None)  A directive for how to stylistically customize the generated QAs
     Returns:
-        qna_output_path (pathlib.Path): Path to the generated seed example file
+        qna_output_path (pathlib.Path): Path to a json file for generated questions and answers
     """
     dataset = {}
     dataset[contribution_name] = {}
     dataset[contribution_name]["chunks"] = []
 
     if not chunks_jsonl_path.exists():
-        raise ValueError(f"chunks.jsonl does not exist but should at {chunks_jsonl_path}")
+        raise ValueError(f"chunks file does not exist but should at {chunks_jsonl_path}")
 
     docs = []
 
@@ -103,14 +131,13 @@ def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, outp
                 docs.append(doc)
 
     for doc in docs:
-        print(f"Filtering smaller chunks out of document {doc['file']}")
+        print(f"Filtering smaller chunks out of chunks from document {doc['file']}")
         
         qa_chunks = get_qa_chunks(doc["file"], doc["chunk_objs"], chunk_filter)
         dataset[contribution_name]["chunks"].extend(list(qa_chunks))
 
 
-    l = dataset[contribution_name]["chunks"]
-    selected_chunks = random.sample(l, num_seed_examples)
+    selected_chunks = dataset[contribution_name]["chunks"]
 
     generate_options = GenerateOptions(project_id="project_id")
     generate_options.provider = LlmProvider.OPENAI_LIKE
@@ -171,6 +198,15 @@ def generate_seed_examples(contribution_name: str, chunks_jsonl_path: Path, outp
     return qna_output_path
 
 def review_seed_examples_file(seed_examples_path: Path, min_seed_examples: int = 5, num_qa_pairs: int = 3) -> None:
+    """
+    Review a seed example file has the expected number of fieldds
+    Args:
+        seed_examples_path (Path):      Path to the qna.yaml file
+        min_seed_example (int):         Minimum number of expected seed examples
+        num_qa_pairs (int):             Number of expected question and answer pairs in a seed example
+    Returns:
+        None
+    """
     with open(seed_examples_path, 'r') as yaml_file:
         yaml_data = yaml.safe_load(yaml_file)
         errors = []
@@ -215,3 +251,27 @@ def review_seed_examples_file(seed_examples_path: Path, min_seed_examples: int =
         else:
             print(f"Seed Examples YAML {seed_examples_path.resolve()} is valid :)")
         print(f"\n")
+
+
+
+def view_seed_example(qna_output_path: Path, seed_example_num: int) -> None:
+    """
+    View a specific seed example in a qna.yaml
+    Args:
+        qna_output_path (Path):         Path to the qna.yaml file
+        seed_example_num (int):         index of seed example to view
+    Returns:
+        None
+    """
+
+    with open(qna_output_path, "r") as yaml_file:
+        yaml_data = yaml.safe_load(yaml_file)
+        seed_examples = yaml_data.get('seed_examples')
+        if seed_example_num >= len(seed_examples):
+            raise ValueError(f"seed_example_num must be less than number of seed examples {len(seed_examples)}")
+        seed_example = seed_examples[seed_example_num]
+        print("Context:")
+        print(f"{seed_example["context"]}\n")
+        for qna in seed_example["questions_and_answers"]:
+            print(f"Question: {qna["question"]}")
+            print(f"Answer: {qna["answer"]}\n")
