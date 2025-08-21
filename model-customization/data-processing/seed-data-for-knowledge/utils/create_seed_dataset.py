@@ -155,7 +155,7 @@ def add_icls(qna_yaml: Dict[str, str], chunked_document: Dataset, max_token_coun
 
     for c in chunked_document_all_icl:
         if get_token_count(c["document"], tokenizer) > max_token_count:
-            raise ValueError(f"Chunk \"{truncate_chunk(c["document"])}\" exceeds token count of {max_token_count}")
+            raise ValueError(f"Chunk \"{truncate_chunk(c['document'])}\" exceeds token count of {max_token_count}")
     
 
     df = chunked_document_all_icl.to_pandas()

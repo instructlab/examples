@@ -271,7 +271,7 @@ def view_seed_example(qna_output_path: Path, seed_example_num: int) -> None:
             raise ValueError(f"seed_example_num must be less than number of seed examples {len(seed_examples)}")
         seed_example = seed_examples[seed_example_num]
         print("Context:")
-        print(f"{seed_example["context"]}\n")
+        print(f"{seed_example['context']}\n")
         for qna in seed_example["questions_and_answers"]:
-            print(f"Question: {qna["question"]}")
-            print(f"Answer: {qna["answer"]}\n")
+            print(f"Question: {qna['question']}")
+            print(f"Answer: {qna['answer']}\n")
